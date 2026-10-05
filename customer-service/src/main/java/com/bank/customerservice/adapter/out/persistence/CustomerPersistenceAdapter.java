@@ -27,7 +27,7 @@ class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     @Override
     public Customer save(Customer customer) {
-        return toDomain(jpa.save(jpa.save(toEntity(customer))));
+        return toDomain(jpa.save(toEntity(customer)));
     }
 
     private CustomerJpaEntity toEntity(Customer customer) {
