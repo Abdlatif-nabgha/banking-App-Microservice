@@ -3,6 +3,7 @@ package com.bank.customerservice.infrastructure.out.persistence;
 
 import com.bank.customerservice.application.ports.outbound.CustomerRepositoryPort;
 import com.bank.customerservice.domain.model.Customer;
+import com.bank.customerservice.domain.model.CustomerId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,8 @@ class CustomerPersistenceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public Optional<Customer> findById(Long id) {
-        return jpa.findById(id).map(this::toDomain);
+    public Optional<Customer> findById(CustomerId id) {
+        return jpa.findById(id.value()).map(this::toDomain);
     }
 
     @Override
@@ -32,7 +33,7 @@ class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     private CustomerJpaEntity toEntity(Customer customer) {
         CustomerJpaEntity entity = new CustomerJpaEntity();
-        entity.setId(customer.id());
+        entity.setId(customer.id() != null ? customer.id().value() : null);
         entity.setFirstName(customer.firstName());
         entity.setLastName(customer.lastName());
         entity.setEmail(customer.email());
@@ -41,11 +42,17 @@ class CustomerPersistenceAdapter implements CustomerRepositoryPort {
     }
 
     private Customer toDomain(CustomerJpaEntity entity) {
-        return new Customer(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPhoneNumber());
+        return new Customer(
+                CustomerId.of(entity.getId()),
+                entity.getFirstName(),
+                entity.getLastName(),
+                entity.getEmail(),
+                entity.getPhoneNumber()
+        );
     }
 
     @Override
-    public void deleteById(Long id) {
-        jpa.deleteById(id);
+    public void deleteById(CustomerId id) {
+        jpa.deleteById(id.value());
     }
 }

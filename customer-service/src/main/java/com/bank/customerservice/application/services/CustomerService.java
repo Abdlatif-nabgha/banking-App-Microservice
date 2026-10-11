@@ -4,6 +4,7 @@ import com.bank.customerservice.application.ports.inbound.CustomerUseCase;
 import com.bank.customerservice.application.ports.outbound.CustomerRepositoryPort;
 import com.bank.customerservice.domain.model.Customer;
 import com.bank.customerservice.domain.exception.CustomerNotFoundException;
+import com.bank.customerservice.domain.model.CustomerId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class CustomerService implements CustomerUseCase {
     }
 
     @Override
-    public Customer findById(Long id) {
+    public Customer findById(CustomerId id) {
         return customers.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(id));
     }
@@ -32,20 +33,20 @@ public class CustomerService implements CustomerUseCase {
     @Transactional
     public Customer create(CustomerDetails d) {
         return customers.save(
-                new Customer(null, d.firstName(), d.lastName(), d.email(), d.phoneNumber())
+                new Customer(CustomerId.generate(), d.firstName(), d.lastName(), d.email(), d.phoneNumber())
         );
     }
 
     @Override
     @Transactional
-    public Customer update(Long id, CustomerDetails d) {
+    public Customer update(CustomerId id, CustomerDetails d) {
         Customer customer = findById(id);
         return customers.save(customer.withDetails(d.firstName(), d.lastName(), d.email(), d.phoneNumber()));
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(CustomerId id) {
         customers.deleteById(id);
     }
 }

@@ -4,13 +4,13 @@ package com.bank.customerservice.domain.model;
 import java.util.Locale;
 
 public final class Customer {
-    private final Long id;
+    private final CustomerId id;
     private final String firstName;
     private final String lastName;
     private final String email;
     private final String phoneNumber;
 
-    public Customer(Long id, String firstName, String lastName, String email, String phoneNumber) {
+    public Customer(CustomerId id, String firstName, String lastName, String email, String phoneNumber) {
         this.id = id;
         this.firstName = requireText(firstName, "First name");
         this.lastName = requireText(lastName, "Last name");
@@ -36,7 +36,7 @@ public final class Customer {
         return requireText(email, "Email").toLowerCase(Locale.ROOT);
     }
 
-    public Long id() {
+    public CustomerId id() {
         return id;
     }
     public String firstName() {

@@ -1,7 +1,7 @@
 package com.bank.customerservice.application.ports.inbound;
 
-
 import com.bank.customerservice.domain.model.Customer;
+import com.bank.customerservice.domain.model.CustomerId;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ public interface CustomerUseCase {
     ) {}
 
     List<Customer> findAll();
-    Customer findById(Long id);
+    Customer findById(CustomerId id);
     Customer create(CustomerDetails details);
-    Customer update(Long id, CustomerDetails customer);
-    void delete(Long id);
+    Customer update(CustomerId id, CustomerDetails customer);
+    void delete(CustomerId id);
 }
