@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-class CustomerPersistenceAdapter implements CustomerRepositoryPort {
+public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     private final CustomerJpaRepository jpa;
 

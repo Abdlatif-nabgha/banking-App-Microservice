@@ -11,7 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "customers")
 @Getter @Setter @NoArgsConstructor
-class CustomerJpaEntity {
+public class CustomerJpaEntity {
 
     @Id
     private UUID id;
