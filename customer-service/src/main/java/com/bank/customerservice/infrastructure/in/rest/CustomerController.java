@@ -1,9 +1,9 @@
-package com.bank.customerservice.adapter.in.web;
+package com.bank.customerservice.infrastructure.in.rest;
 
-import com.bank.customerservice.adapter.in.web.dto.CustomerRequest;
-import com.bank.customerservice.adapter.in.web.dto.CustomerResponse;
-import com.bank.customerservice.application.port.in.CustomerUseCase;
-import com.bank.customerservice.domain.CustomerNotFoundException;
+import com.bank.customerservice.infrastructure.in.rest.dto.CustomerRequest;
+import com.bank.customerservice.infrastructure.in.rest.dto.CustomerResponse;
+import com.bank.customerservice.application.ports.inbound.CustomerUseCase;
+import com.bank.customerservice.domain.exception.CustomerNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -21,8 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/customers")
 public class CustomerController {
+
     private final CustomerUseCase useCase;
 
     public CustomerController(CustomerUseCase useCase) {

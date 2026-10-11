@@ -1,6 +1,6 @@
-package com.bank.customerservice.adapter.in.web.dto;
+package com.bank.customerservice.infrastructure.in.rest.dto;
 
-import com.bank.customerservice.application.port.in.CustomerUseCase;
+import com.bank.customerservice.application.ports.inbound.CustomerUseCase;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

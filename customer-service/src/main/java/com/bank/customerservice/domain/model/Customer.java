@@ -1,4 +1,4 @@
-package com.bank.customerservice.domain;
+package com.bank.customerservice.domain.model;
 
 
 import java.util.Locale;

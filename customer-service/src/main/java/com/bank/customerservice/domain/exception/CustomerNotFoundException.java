@@ -1,4 +1,4 @@
-package com.bank.customerservice.domain;
+package com.bank.customerservice.domain.exception;
 
 
 public class CustomerNotFoundException extends RuntimeException {

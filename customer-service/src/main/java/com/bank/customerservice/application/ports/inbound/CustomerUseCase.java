@@ -1,7 +1,7 @@
-package com.bank.customerservice.application.port.in;
+package com.bank.customerservice.application.ports.inbound;
 
 
-import com.bank.customerservice.domain.Customer;
+import com.bank.customerservice.domain.model.Customer;
 
 import java.util.List;
 

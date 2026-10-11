@@ -1,8 +1,8 @@
-package com.bank.customerservice.adapter.out.persistence;
+package com.bank.customerservice.infrastructure.out.persistence;
 
 
-import com.bank.customerservice.application.port.out.CustomerRepositoryPort;
-import com.bank.customerservice.domain.Customer;
+import com.bank.customerservice.application.ports.outbound.CustomerRepositoryPort;
+import com.bank.customerservice.domain.model.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
