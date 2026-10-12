@@ -1,18 +1,15 @@
-package com.bank.accountservice.infra.out.persistence;
+package com.bank.accountservice.infrastructure.out.persistence;
 
 import com.bank.accountservice.domain.model.AccountStatus;
 import com.bank.accountservice.domain.model.AccountType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@NoArgsConstructor @AllArgsConstructor @Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Getter @Setter @Builder
 public class AccountJpaEntity {
     @Id
     private UUID id;
