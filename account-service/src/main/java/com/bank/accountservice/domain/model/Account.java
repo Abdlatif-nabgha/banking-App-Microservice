@@ -26,8 +26,15 @@ public class Account {
         this.status = Objects.requireNonNull(status);
     }
 
-    public static Account open(AccountId id, UUID customerId, String accountNumber, AccountType accountType, BigDecimal balance, AccountStatus status) {
-        return new Account(id, customerId, accountNumber, accountType, balance, status);
+    public static Account open(UUID customerId, String accountNumber, AccountType accountType) {
+        return new Account(
+                AccountId.generate(),
+                customerId,
+                accountNumber,
+                accountType,
+                BigDecimal.ZERO,
+                AccountStatus.ACTIVE
+        );
     }
 
     public static Account reconstitute(AccountId id, UUID customerId, String accountNumber,
