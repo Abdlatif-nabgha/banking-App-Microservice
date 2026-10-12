@@ -2,7 +2,6 @@ package com.bank.accountservice.infrastructure.out.persistence;
 
 
 import com.bank.accountservice.application.ports.outbound.AccountRepositoryPort;
-import com.bank.accountservice.domain.exception.AccountNotFoundException;
 import com.bank.accountservice.domain.model.Account;
 import com.bank.accountservice.domain.model.AccountId;
 import lombok.RequiredArgsConstructor;

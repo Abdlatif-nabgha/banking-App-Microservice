@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
+@Table(name = "account")
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter @Builder
 public class AccountJpaEntity {
     @Id
