@@ -20,12 +20,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class AccountService implements AccountUseCase {
 
     private final AccountRepositoryPort accountRepositoryPort;
     private final CustomerVerificationPort customerVerificationPort;
 
+    @Transactional
     @Override
     public Account openAccount(OpenAccountCommand command) {
         if (!customerVerificationPort.customerExists(command.customerId())) {
