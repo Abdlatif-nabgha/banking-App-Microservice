@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface AccountRepositoryPort {
     Account save(Account account);
-    Optional<Account> findById(AccountId id);
+    Optional<Account> findByAccountId(AccountId id);
     Optional<Account> findByAccountNumber(String accountNumber);
     List<Account> findByCustomerId(UUID customerId);
 }

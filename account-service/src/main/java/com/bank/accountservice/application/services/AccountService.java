@@ -5,11 +5,11 @@ import com.bank.accountservice.application.ports.inbound.AccountUseCase;
 import com.bank.accountservice.application.ports.inbound.OpenAccountCommand;
 import com.bank.accountservice.application.ports.outbound.AccountRepositoryPort;
 import com.bank.accountservice.application.ports.outbound.CustomerVerificationPort;
+import com.bank.accountservice.domain.exception.AccountNotFoundException;
 import com.bank.accountservice.domain.exception.CustomerNotFoundException;
 import com.bank.accountservice.domain.model.Account;
 import com.bank.accountservice.domain.model.AccountId;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,41 +39,61 @@ public class AccountService implements AccountUseCase {
     }
 
     private String generateAccountNumber() {
-        return "ACC" + ThreadLocalRandom.current().nextLong(1_000_000_000L, 10_000_000_000L);
+        String number;
+        do {
+            number = "ACC" + ThreadLocalRandom.current().nextLong(1_000_000_000L, 10_000_000_000L);
+        } while (accountRepositoryPort.findByAccountNumber(number).isPresent());
+        return number;
     }
 
     @Override
     public Account getAccount(AccountId accountId) {
-        return null;
+        return accountRepositoryPort.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     @Override
     public List<Account> getAccountsByCustomerId(UUID customerId) {
-        return List.of();
+        return accountRepositoryPort.findByCustomerId(customerId);
     }
 
     @Override
+    @Transactional
     public Account deposit(AccountId id, BigDecimal amount) {
-        return null;
+        Account account = getAccount(id);
+        account.deposit(amount);
+        return accountRepositoryPort.save(account);
     }
 
     @Override
+    @Transactional
     public Account withdraw(AccountId id, BigDecimal amount) {
-        return null;
+        Account account = getAccount(id);
+        account.withdraw(amount);
+        return accountRepositoryPort.save(account);
     }
 
     @Override
+    @Transactional
     public void suspendAccount(AccountId id) {
-
+        Account account = getAccount(id);
+        account.suspend();
+        accountRepositoryPort.save(account);
     }
 
     @Override
+    @Transactional
     public void activateAccount(AccountId id) {
-
+        Account account = getAccount(id);
+        account.activate();
+        accountRepositoryPort.save(account);
     }
 
     @Override
+    @Transactional
     public void closeAccount(AccountId id) {
-
+        Account account = getAccount(id);
+        account.close();
+        accountRepositoryPort.save(account);
     }
 }
