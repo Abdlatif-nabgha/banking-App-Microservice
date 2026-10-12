@@ -26,6 +26,7 @@
 
     <modules>
         <module>customer-service</module>
+        <module>account-service</module>
     </modules>
 
     <dependencyManagement>
