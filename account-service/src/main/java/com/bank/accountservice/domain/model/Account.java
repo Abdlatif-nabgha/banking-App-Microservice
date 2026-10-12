@@ -26,7 +26,7 @@ public class Account {
         this.status = Objects.requireNonNull(status);
     }
 
-    public static Account of(AccountId id,   UUID customerId, String accountNumber, AccountType accountType, BigDecimal balance, AccountStatus status) {
+    public static Account open(AccountId id, UUID customerId, String accountNumber, AccountType accountType, BigDecimal balance, AccountStatus status) {
         return new Account(id, customerId, accountNumber, accountType, balance, status);
     }
 
