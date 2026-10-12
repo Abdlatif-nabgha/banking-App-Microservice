@@ -1,6 +1,7 @@
 server:
   port: 8081
-
+customer-service:
+  url: http://localhost:8080
 spring:
   application:
     name: account-service
