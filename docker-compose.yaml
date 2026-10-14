@@ -1,5 +1,5 @@
 services:
-  postgres:
+  customer-postgres:
     image: postgres:17-alpine
     container_name: customer-postgres
     restart: unless-stopped
@@ -12,9 +12,29 @@ services:
     networks:
       - banking-network
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - customer_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U customer_user -d customerdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  account-postgres:
+    image: postgres:17-alpine
+    container_name: account-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: accountdb
+      POSTGRES_USER: account_user
+      POSTGRES_PASSWORD: account_password
+    ports:
+      - "5433:5432"
+    networks:
+      - banking-network
+    volumes:
+      - account_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U account_user -d accountdb"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -31,7 +51,9 @@ services:
     networks:
       - banking-network
     depends_on:
-      postgres:
+      customer-postgres:
+        condition: service_healthy
+      account-postgres:
         condition: service_healthy
 
 networks:
@@ -39,4 +61,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  customer_postgres_data:
+  account_postgres_data:
+

@@ -21,4 +21,7 @@ public class AccountJpaEntity {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
     private BigDecimal balance;
+
+    @Version 
+    private Long version;
 }

@@ -11,7 +11,7 @@ spring:
     config:
       enabled: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/accountdb
+    url: jdbc:postgresql://localhost:5433/accountdb
     username: account_user
     password: account_password
     driver-class-name: org.postgresql.Driver
@@ -28,3 +28,6 @@ spring:
     locations:
       - classpath:db/migration
     baseline-on-migrate: true # Useful for existing databases
+eureka:
+  client:
+    enabled: false

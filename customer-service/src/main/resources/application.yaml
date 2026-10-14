@@ -27,3 +27,6 @@ spring:
     locations:
       - classpath:db/migration
     baseline-on-migrate: true # Useful for existing databases
+eureka:
+  client:
+    enabled: false
