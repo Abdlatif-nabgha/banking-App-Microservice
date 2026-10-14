@@ -19,8 +19,4 @@ public record CustomerId(UUID value) {
         return new CustomerId(id);
     }
 
-    @Override
-    public String toString() {
-        return value.toString();
-    }
 }
