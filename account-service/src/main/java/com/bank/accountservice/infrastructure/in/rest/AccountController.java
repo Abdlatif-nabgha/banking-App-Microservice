@@ -6,6 +6,7 @@ import com.bank.accountservice.domain.model.AccountId;
 import com.bank.accountservice.infrastructure.in.rest.dto.AccountResponse;
 import com.bank.accountservice.infrastructure.in.rest.dto.AmountRequest;
 import com.bank.accountservice.infrastructure.in.rest.dto.OpenAccountRequest;
+import com.bank.accountservice.infrastructure.in.rest.idempotency.Idempotent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -58,12 +59,14 @@ public class AccountController {
     }
 
     @PostMapping("/{id}/deposit")
+    @Idempotent
     @Operation(summary = "Deposit money", description = "Deposit an amount into an active account")
     public AccountResponse deposit(@PathVariable UUID id, @Valid @RequestBody AmountRequest request) {
         return AccountResponse.from(accountUseCase.deposit(AccountId.of(id), request.amount()));
     }
 
     @PostMapping("/{id}/withdraw")
+    @Idempotent
     @Operation(summary = "Withdraw money", description = "Withdraw an amount from an active account with sufficient funds")
     public AccountResponse withdraw(@PathVariable UUID id, @Valid @RequestBody AmountRequest request) {
         return AccountResponse.from(accountUseCase.withdraw(AccountId.of(id), request.amount()));
