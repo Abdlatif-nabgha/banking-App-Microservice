@@ -1,6 +1,8 @@
 package com.bank.customerservice.application.services;
 
 import com.bank.customerservice.application.ports.inbound.CustomerUseCase.CustomerDetails;
+import com.bank.customerservice.application.ports.inbound.CustomerUseCase.CustomerPatchDetails;
+import com.bank.customerservice.application.ports.inbound.CustomerUseCase.CustomerPutDetails;
 import com.bank.customerservice.application.ports.outbound.CustomerRepositoryPort;
 import com.bank.customerservice.domain.exception.CustomerNotFoundException;
 import com.bank.customerservice.domain.model.Customer;
@@ -16,7 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -49,8 +52,10 @@ public class CustomerServiceTest {
 
         List<Customer> customers = customerService.findAll();
 
-        assertNotNull(customers);
-        assertEquals(2, customers.size());
+        assertThat(customers)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactly(customer1, customer2);
         verify(customerRepository, times(1)).findAll();
     }
 
@@ -60,8 +65,8 @@ public class CustomerServiceTest {
 
         Customer foundCustomer = customerService.findById(customerId1);
 
-        assertNotNull(foundCustomer);
-        assertEquals("John", foundCustomer.firstName());
+        assertThat(foundCustomer).isNotNull();
+        assertThat(foundCustomer.firstName()).isEqualTo("John");
         verify(customerRepository, times(1)).findById(customerId1);
     }
 
@@ -69,7 +74,8 @@ public class CustomerServiceTest {
     void findCustomerByIdNotFound() {
         when(customerRepository.findById(customerId1)).thenReturn(Optional.empty());
 
-        assertThrows(CustomerNotFoundException.class, () -> customerService.findById(customerId1));
+        assertThatThrownBy(() -> customerService.findById(customerId1))
+                .isInstanceOf(CustomerNotFoundException.class);
         verify(customerRepository, times(1)).findById(customerId1);
     }
 
@@ -80,41 +86,59 @@ public class CustomerServiceTest {
         CustomerDetails details = new CustomerDetails("John", "Doe", "john.doe@example.com", "123-456-7890");
         Customer savedCustomer = customerService.create(details);
 
-        assertNotNull(savedCustomer);
-        assertEquals("John", savedCustomer.firstName());
+        assertThat(savedCustomer).isNotNull();
+        assertThat(savedCustomer.firstName()).isEqualTo("John");
         verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
     @Test
     void updateCustomerDetails() {
-        CustomerDetails updateDetails = new CustomerDetails("Johnny", "Doe", "johnny.doe@example.com", "111-222-3333");
-        Customer updatedCustomer = new Customer(customerId1, "Johnny", "Doe", "johnny.doe@example.com", "111-222-3333");
+        CustomerPutDetails updateDetails = new CustomerPutDetails("Johnny", "Doe", "111-222-3333");
+        Customer updatedCustomer = new Customer(customerId1, "Johnny", "Doe", "john.doe@example.com", "111-222-3333");
 
         when(customerRepository.findById(customerId1)).thenReturn(Optional.of(customer1));
         when(customerRepository.save(any(Customer.class))).thenReturn(updatedCustomer);
 
         Customer result = customerService.update(customerId1, updateDetails);
 
-        assertNotNull(result);
-        assertEquals("Johnny", result.firstName());
-        assertEquals("johnny.doe@example.com", result.email());
+        assertThat(result).isNotNull();
+        assertThat(result.firstName()).isEqualTo("Johnny");
+        assertThat(result.email()).isEqualTo("john.doe@example.com"); // Email remains unmodifiable
         verify(customerRepository, times(1)).findById(customerId1);
         verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
     @Test
     void updateCustomerDetailsNotFound() {
-        CustomerDetails updateDetails = new CustomerDetails("Johnny", "Doe", "johnny.doe@example.com", "111-222-3333");
+        CustomerPutDetails updateDetails = new CustomerPutDetails("Johnny", "Doe", "111-222-3333");
 
         when(customerRepository.findById(customerId1)).thenReturn(Optional.empty());
 
-        CustomerNotFoundException thrown = assertThrows(CustomerNotFoundException.class, () ->
-                customerService.update(customerId1, updateDetails)
-        );
+        assertThatThrownBy(() -> customerService.update(customerId1, updateDetails))
+                .isInstanceOf(CustomerNotFoundException.class)
+                .hasMessageContaining(customerId1.toString());
 
-        assertTrue(thrown.getMessage().contains(customerId1.toString()));
         verify(customerRepository, times(1)).findById(customerId1);
         verify(customerRepository, never()).save(any(Customer.class));
+    }
+
+    @Test
+    void patchCustomerDetailsOnlyFirstName() {
+        CustomerPatchDetails patchDetails = new CustomerPatchDetails("Johnny", null, null);
+        Customer patchedCustomer = new Customer(customerId1, "Johnny", "Doe", "john.doe@example.com", "123-456-7890");
+
+        when(customerRepository.findById(customerId1)).thenReturn(Optional.of(customer1));
+        when(customerRepository.save(any(Customer.class))).thenReturn(patchedCustomer);
+
+        Customer result = customerService.patch(customerId1, patchDetails);
+
+        assertThat(result).isNotNull();
+        assertThat(result.firstName()).isEqualTo("Johnny");
+        assertThat(result.lastName()).isEqualTo("Doe");
+        assertThat(result.email()).isEqualTo("john.doe@example.com");
+        assertThat(result.phoneNumber()).isEqualTo("123-456-7890");
+        verify(customerRepository, times(1)).findById(customerId1);
+        verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
     @Test

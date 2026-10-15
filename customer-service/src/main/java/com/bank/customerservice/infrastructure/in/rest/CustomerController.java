@@ -1,41 +1,33 @@
 package com.bank.customerservice.infrastructure.in.rest;
 
+import com.bank.customerservice.infrastructure.in.rest.dto.CustomerPatchRequest;
 import com.bank.customerservice.infrastructure.in.rest.dto.CustomerRequest;
 import com.bank.customerservice.infrastructure.in.rest.dto.CustomerResponse;
+import com.bank.customerservice.infrastructure.in.rest.dto.CustomerUpdateRequest;
 import com.bank.customerservice.application.ports.inbound.CustomerUseCase;
 import com.bank.customerservice.domain.model.CustomerId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/customers")
+@RequiredArgsConstructor
 @Tag(name = "Customer Management", description = "Operations related to customers")
 public class CustomerController {
 
-    private final CustomerUseCase useCase;
-
-    public CustomerController(CustomerUseCase useCase) {
-        this.useCase = useCase;
-    }
+    private final CustomerUseCase customerUseCase;
 
     @GetMapping
     @Operation(summary = "Get all customers", description = "Retrieve a list of all registered customers")
     public List<CustomerResponse> getAllCustomers() {
-        return useCase.findAll().stream()
+        return customerUseCase.findAll().stream()
                 .map(CustomerResponse::from)
                 .toList();
     }
@@ -43,29 +35,39 @@ public class CustomerController {
     @GetMapping("/{id}")
     @Operation(summary = "Get customer by ID", description = "Retrieve customer details by their unique UUID")
     public CustomerResponse getCustomerById(@PathVariable UUID id) {
-        return CustomerResponse.from(useCase.findById(CustomerId.of(id)));
+        return CustomerResponse.from(customerUseCase.findById(CustomerId.of(id)));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create customer", description = "Register a new customer")
     public CustomerResponse createCustomer(@Valid @RequestBody CustomerRequest request) {
-        return CustomerResponse.from(useCase.create(request.toDetails()));
+        return CustomerResponse.from(customerUseCase.create(request.toDetails()));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update customer", description = "Update existing customer details")
+    @Operation(summary = "Update customer", description = "Update existing customer details. Email is not modifiable.")
     public CustomerResponse update(
             @PathVariable UUID id,
-            @Valid @RequestBody CustomerRequest request
+            @Valid @RequestBody CustomerUpdateRequest request
     ) {
-        return CustomerResponse.from(useCase.update(CustomerId.of(id), request.toDetails()));
+        return CustomerResponse.from(customerUseCase.update(CustomerId.of(id), request.toDetails()));
     }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Partially update customer", description = "Update mutable fields (name, phone) of a customer. Email cannot be modified.")
+    public CustomerResponse patch(
+            @PathVariable UUID id,
+            @Valid @RequestBody CustomerPatchRequest request
+    ) {
+        return CustomerResponse.from(customerUseCase.patch(CustomerId.of(id), request.toDetails()));
+    }
+
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete customer", description = "Delete a customer by ID")
     public void delete(@PathVariable UUID id) {
-        useCase.delete(CustomerId.of(id));
+        customerUseCase.delete(CustomerId.of(id));
     }
 }

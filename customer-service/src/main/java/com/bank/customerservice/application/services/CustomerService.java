@@ -39,9 +39,32 @@ public class CustomerService implements CustomerUseCase {
 
     @Override
     @Transactional
-    public Customer update(CustomerId id, CustomerDetails d) {
+    public Customer update(CustomerId id, CustomerPutDetails d) {
         Customer customer = findById(id);
-        return customers.save(customer.withDetails(d.firstName(), d.lastName(), d.email(), d.phoneNumber()));
+        return customers.save(customer.withDetails(
+                d.firstName(),
+                d.lastName(),
+                customer.email(),
+                d.phoneNumber()
+        ));
+    }
+
+    @Override
+    @Transactional
+    public Customer patch(CustomerId id, CustomerPatchDetails customer) {
+        Customer existing = findById(id);
+        String updateFirstName = (customer.firstName() != null && !customer.firstName().isBlank())
+                ? customer.firstName()
+                : existing.firstName();
+        String updatedLastName = (customer.lastName() != null && !customer.lastName().isBlank())
+                ? customer.lastName()
+                : existing.lastName();
+        String updatedPhone = (customer.phoneNumber() != null && !customer.phoneNumber().isBlank())
+                ? customer.phoneNumber()
+                : existing.phoneNumber();
+        return customers.save(
+                existing.withDetails(updateFirstName, updatedLastName, existing.email(), updatedPhone)
+        );
     }
 
     @Override

@@ -14,9 +14,24 @@ public interface CustomerUseCase {
             String phoneNumber
     ) {}
 
+
+    record CustomerPutDetails(
+            String firstName,
+            String lastName,
+            String phoneNumber
+    ) {}
+
+    record CustomerPatchDetails(
+            String firstName,
+            String lastName,
+            String phoneNumber
+    ) {}
+
+
     List<Customer> findAll();
     Customer findById(CustomerId id);
     Customer create(CustomerDetails details);
-    Customer update(CustomerId id, CustomerDetails customer);
+    Customer update(CustomerId id, CustomerPutDetails customer);
+    Customer patch(CustomerId id, CustomerPatchDetails customer);
     void delete(CustomerId id);
 }
