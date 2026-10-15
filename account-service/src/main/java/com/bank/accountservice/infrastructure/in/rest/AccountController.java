@@ -35,7 +35,8 @@ public class AccountController {
 
     @PostMapping
     @Operation(summary = "Open an account", description = "Create a new bank account for an existing customer")
-    public ResponseEntity<AccountResponse> open(@Valid @RequestBody OpenAccountRequest request) {
+    public ResponseEntity<AccountResponse> open(
+            @Valid @RequestBody OpenAccountRequest request) {
         Account account = accountUseCase.openAccount(request.toCommand());
         return ResponseEntity
                 .created(URI.create("/api/accounts/" + account.getId().value()))
