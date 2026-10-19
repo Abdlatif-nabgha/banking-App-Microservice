@@ -46,7 +46,7 @@ public class IdempotencyAspect {
         if (existingRecord.isPresent()) {
             IdempotencyRecordJpaEntity record = getRecord(existingRecord, currentHash);
 
-            // Déjà complété -> On désérialise et on retourne le JSON sans toucher au compte !
+            // Déjà complété → On désérialise et on retourne le JSON sans toucher au compte !
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             return objectMapper.readValue(record.getResponseBody(), signature.getReturnType());
         }
@@ -80,7 +80,7 @@ public class IdempotencyAspect {
     private static @NonNull IdempotencyRecordJpaEntity getRecord(Optional<IdempotencyRecordJpaEntity> existingRecord, String currentHash) {
         IdempotencyRecordJpaEntity record = existingRecord.get();
 
-        // Sécurité : même clé mais body différent -> 422 Unprocessable Entity
+        // Sécurité : même clé, mais body différent -> 422 Unprocessable Entity
         if (!record.getRequestHash().equals(currentHash)) {
             throw new ResponseStatusException(
                     HttpStatus.UNPROCESSABLE_ENTITY,
