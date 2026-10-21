@@ -1,6 +1,5 @@
 package com.bank.transactionservice.domain.model;
 
-
 import java.util.Objects;
 import java.util.UUID;
 

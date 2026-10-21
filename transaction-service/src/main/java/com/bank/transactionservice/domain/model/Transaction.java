@@ -10,8 +10,8 @@ public class Transaction {
 
     private final TransactionId id;
     private final TransactionType type;
-    private final UUID sourceAccountId;        // null pour un dépôt
-    private final UUID destinationAccountId;   // null pour un retrait
+    private final UUID sourceAccountId;        // null for deposit
+    private final UUID destinationAccountId;   // null for withdraw
     private final BigDecimal amount;
     private final Instant createdAt;
     private TransactionStatus status;
@@ -53,7 +53,6 @@ public class Transaction {
         return pending(TransactionType.TRANSFER, sourceId, destinationId, amount);
     }
 
-    // Réservée à l'adapter de persistance
     public static Transaction reconstitute(TransactionId id, TransactionType type, UUID sourceAccountId,
                                            UUID destinationAccountId, BigDecimal amount,
                                            TransactionStatus status, String failureReason,
