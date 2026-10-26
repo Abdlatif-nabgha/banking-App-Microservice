@@ -39,6 +39,26 @@ services:
       timeout: 5s
       retries: 5
 
+  transaction-postgres:
+    image: postgres:17-alpine
+    container_name: transaction-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: transactiondb
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_password
+    ports:
+      - "5434:5432"
+    networks:
+      - banking-network
+    volumes:
+      - transaction_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transaction_user -d transactiondb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: customer-pgadmin
@@ -55,6 +75,8 @@ services:
         condition: service_healthy
       account-postgres:
         condition: service_healthy
+      transaction-postgres:
+        condition: service_healthy
 
 networks:
   banking-network:
@@ -63,4 +85,5 @@ networks:
 volumes:
   customer_postgres_data:
   account_postgres_data:
+  transaction_postgres_data:
 
