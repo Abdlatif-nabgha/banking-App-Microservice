@@ -15,8 +15,4 @@ public record TransactionId(UUID value) {
     public static TransactionId of(UUID id) {
         return new TransactionId(id);
     }
-
-    public static TransactionId of(String id) {
-        return new TransactionId(UUID.fromString(id));
-    }
 }

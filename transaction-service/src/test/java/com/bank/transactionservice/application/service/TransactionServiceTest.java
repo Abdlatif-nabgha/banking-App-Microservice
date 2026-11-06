@@ -25,15 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Test unitaire pur pour TransactionService.
- *
- * Notice :
- * - AUCUNE annotation Spring (@SpringBootTest, @Autowired) -> exécution en 10ms !
- * - Utilisation de JUnit 5 pour la structure.
- * - Utilisation de Mockito uniquement pour simuler les Ports de sortie (AccountPort, TransactionRepositoryPort).
- * - Utilisation d'AssertJ pour des assertions fluides et lisibles.
- */
+
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 

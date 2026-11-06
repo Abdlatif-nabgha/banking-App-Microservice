@@ -10,8 +10,8 @@ public class Transaction {
 
     private final TransactionId id;
     private final TransactionType type;
-    private final UUID sourceAccountId;        // null for deposit
-    private final UUID destinationAccountId;   // null for withdraw
+    private final UUID sourceAccountId;
+    private final UUID destinationAccountId;
     private final BigDecimal amount;
     private final Instant createdAt;
     private TransactionStatus status;
@@ -61,7 +61,6 @@ public class Transaction {
                 amount, status, failureReason, createdAt);
     }
 
-    // ---------- Transitions d'état : uniquement depuis PENDING ----------
 
     public void complete() {
         requirePending();

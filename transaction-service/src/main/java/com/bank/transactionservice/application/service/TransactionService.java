@@ -17,17 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-/**
- * Application service — cœur de l'hexagone.
- * <p>
- * Cette classe est <strong>framework-agnostic</strong> : aucune annotation Spring
- * ({@code @Service}, {@code @Transactional}, {@code @Slf4j}, etc.).
- * L'enregistrement comme bean Spring est délégué à
- * {@code infrastructure.config.ApplicationConfig}.
- * <p>
- * Elle implémente chaque port entrant (use case) séparément,
- * conformément au principe ISP (Interface Segregation Principle).
- */
+
 public class TransactionService implements DepositUseCase,
                                            WithdrawUseCase,
                                            TransferUseCase,

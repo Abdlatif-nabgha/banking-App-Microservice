@@ -29,13 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Adapter entrant REST.
- * <p>
- * Remarque : le contrôleur injecte chaque use case <strong>séparément</strong>
- * — il ne connaît pas {@code TransactionService}.
- * C'est le principe ISP appliqué à l'injection de dépendances.
- */
+
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
