@@ -11,6 +11,7 @@ import com.bank.transactionservice.application.port.out.TransactionRepositoryPor
 import com.bank.transactionservice.domain.exception.TransactionNotFoundException;
 import com.bank.transactionservice.domain.model.Transaction;
 import com.bank.transactionservice.domain.model.TransactionId;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 
 
+@Slf4j
 public class TransactionService implements DepositUseCase,
                                            WithdrawUseCase,
                                            TransferUseCase,
@@ -70,13 +72,33 @@ public class TransactionService implements DepositUseCase,
     @Override
     public Transaction transfer(UUID sourceAccountId, UUID destinationAccountId, BigDecimal amount) {
         Transaction tx = Transaction.transfer(sourceAccountId, destinationAccountId, amount);
+        boolean sourceDebited = false;
 
         try {
+            // Step 1: Debit source account
             accountPort.withdraw(sourceAccountId, amount);
+            sourceDebited = true;
+
+            // Step 2: Credit destination account
             accountPort.deposit(destinationAccountId, amount);
+
             tx.complete();
         } catch (Exception e) {
-            tx.fail(e.getMessage());
+            log.error("Transfer failed: {}", e.getMessage());
+            if (sourceDebited) {
+                try {
+                    // SAGA Compensation: Refund the source account
+                    log.warn("SAGA compensation started: refunding source account {}", sourceAccountId);
+                    accountPort.deposit(sourceAccountId, amount);
+                    tx.fail("Transfer failed at destination step. Source account was refunded: " + e.getMessage());
+                } catch (Exception compensationException) {
+                    // Critical case: alert for manual reconciliation
+                    log.error("FATAL: SAGA compensation failed for account {}", sourceAccountId, compensationException);
+                    tx.fail("CRITICAL: Transfer failed and compensation failed. Manual intervention required.");
+                }
+            } else {
+                tx.fail(e.getMessage());
+            }
         }
 
         return transactionRepository.save(tx);

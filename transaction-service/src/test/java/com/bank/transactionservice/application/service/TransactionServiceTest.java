@@ -199,6 +199,64 @@ class TransactionServiceTest {
             // Destination deposit should never be called!
             verify(accountPort, never()).deposit(eq(destId), any());
         }
+
+        @Test
+        @DisplayName("SAGA: Should compensate source account when destination deposit fails")
+        void shouldCompensateSourceWhenDestinationFails() {
+            // Given
+            UUID sourceId = UUID.randomUUID();
+            UUID destId = UUID.randomUUID();
+            BigDecimal amount = new BigDecimal("250.00");
+
+            doNothing().when(accountPort).withdraw(sourceId, amount);
+            doThrow(new RuntimeException("Destination account not found"))
+                    .when(accountPort).deposit(destId, amount);
+
+            when(transactionRepository.save(any(Transaction.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // When
+            Transaction result = transactionService.transfer(sourceId, destId, amount);
+
+            // Then
+            assertThat(result.getStatus()).isEqualTo(TransactionStatus.FAILED);
+            assertThat(result.getFailureReason()).contains("Source account was refunded");
+            assertThat(result.getFailureReason()).contains("Destination account not found");
+
+            // Verify SAGA compensation:
+            verify(accountPort).withdraw(sourceId, amount);
+            verify(accountPort).deposit(destId, amount);
+            verify(accountPort).deposit(sourceId, amount); // Refund!
+        }
+
+        @Test
+        @DisplayName("SAGA: Should record critical failure when both destination and compensation fail")
+        void shouldHandleCompensationFailure() {
+            // Given
+            UUID sourceId = UUID.randomUUID();
+            UUID destId = UUID.randomUUID();
+            BigDecimal amount = new BigDecimal("250.00");
+
+            doNothing().when(accountPort).withdraw(sourceId, amount);
+            doThrow(new RuntimeException("Destination unavailable"))
+                    .when(accountPort).deposit(destId, amount);
+            doThrow(new RuntimeException("Account service totally down"))
+                    .when(accountPort).deposit(sourceId, amount);
+
+            when(transactionRepository.save(any(Transaction.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // When
+            Transaction result = transactionService.transfer(sourceId, destId, amount);
+
+            // Then
+            assertThat(result.getStatus()).isEqualTo(TransactionStatus.FAILED);
+            assertThat(result.getFailureReason()).contains("CRITICAL: Transfer failed and compensation failed");
+
+            verify(accountPort).withdraw(sourceId, amount);
+            verify(accountPort).deposit(destId, amount);
+            verify(accountPort).deposit(sourceId, amount);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────
