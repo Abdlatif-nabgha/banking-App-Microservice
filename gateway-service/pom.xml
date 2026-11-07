@@ -50,6 +50,13 @@
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
+        <!-- Swagger / OpenAPI Reactive (Spring Cloud Gateway WebFlux) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+    
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

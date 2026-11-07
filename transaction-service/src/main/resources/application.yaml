@@ -1,51 +1,8 @@
 spring:
   application:
     name: transaction-service
-  datasource:
-    url: jdbc:postgresql://localhost:5434/transactiondb
-    username: transaction_user
-    password: transaction_password
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
-  flyway:
-    enabled: true
-
-server:
-  port: 8082
-eureka:
-  client:
-    enabled: true
-
-account-service:
-  url: http://localhost:8081
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,circuitbreakers,circuitbreakerevents
-  health:
-    circuitbreakers:
+  config:
+    import: "optional:configserver:http://localhost:9999"
+  cloud:
+    config:
       enabled: true
-  endpoint:
-    health:
-      show-details: always
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      account-service:
-        register-health-indicator: true
-        sliding-window-size: 10
-        minimum-number-of-calls: 5
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 2
-        automatic-transition-from-open-to-half-open-enabled: true
-        record-exceptions:
-          - com.bank.transactionservice.domain.exception.AccountServiceUnavailableException

@@ -1,43 +1,5 @@
-server:
-  port: 8888
-
 spring:
   application:
     name: gateway-service
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            # Route 1: Customer Service
-            - id: customer-service
-              uri: http://localhost:8080
-              predicates:
-                - Path=/api/v1/customers/**
-
-            # Route 2: Account Service
-            - id: account-service
-              uri: http://localhost:8081
-              predicates:
-                - Path=/api/v1/accounts/**
-
-            # Route 3: Transaction Service
-            - id: transaction-service
-              uri: http://localhost:8082
-              predicates:
-                - Path=/api/v1/transactions/**
-
-eureka:
-  client:
-    enabled: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,gateway
-  endpoint:
-    health:
-      show-details: always
-    gateway:
-      enabled: true
+  config:
+    import: "optional:configserver:http://localhost:9999"

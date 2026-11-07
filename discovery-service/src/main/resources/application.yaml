@@ -1,21 +1,9 @@
-server:
-  port: 8761
-
 spring:
   application:
     name: discovery-service
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    service-url:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+  config:
+    import: "optional:configserver:http://localhost:9999"
+  cloud:
+    config:
+      enabled: true
+      fail-fast: false # 'false' permet à Eureka de démarrer même si config-service est éteint
