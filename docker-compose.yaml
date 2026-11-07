@@ -1,7 +1,4 @@
 services:
-  # ==============================================================================
-  # 1. DATABASES
-  # ==============================================================================
   customer-postgres:
     image: postgres:17-alpine
     container_name: customer-postgres
@@ -81,132 +78,6 @@ services:
       transaction-postgres:
         condition: service_healthy
 
-  # ==============================================================================
-  # 2. INFRASTRUCTURE MICROSERVICES
-  # ==============================================================================
-  config-service:
-    build:
-      context: ./config-service
-      dockerfile: Dockerfile
-    container_name: config-service
-    restart: unless-stopped
-    expose:
-      - "9999"
-    environment:
-      - SPRING_PROFILES_ACTIVE=native,default
-    networks:
-      - banking-network
-
-  discovery-service:
-    build:
-      context: ./discovery-service
-      dockerfile: Dockerfile
-    container_name: discovery-service
-    restart: unless-stopped
-    ports:
-      - "8761:8761" # Eureka Web Dashboard for monitoring
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
-    networks:
-      - banking-network
-    depends_on:
-      - config-service
-
-  # ==============================================================================
-  # 3. BUSINESS MICROSERVICES (INTERNAL - NO PUBLIC PORTS EXPOSED)
-  # Forces all external traffic to go through Gateway (:8888) exclusively!
-  # ==============================================================================
-  customer-service:
-    build:
-      context: ./customer-service
-      dockerfile: Dockerfile
-    container_name: customer-service
-    restart: unless-stopped
-    expose:
-      - "8080" # Internal only to banking-network, NOT exposed on host!
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://customer-postgres:5432/customerdb
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-    networks:
-      - banking-network
-    depends_on:
-      customer-postgres:
-        condition: service_healthy
-      discovery-service:
-        condition: service_started
-      config-service:
-        condition: service_started
-
-  account-service:
-    build:
-      context: ./account-service
-      dockerfile: Dockerfile
-    container_name: account-service
-    restart: unless-stopped
-    expose:
-      - "8081" # Internal only to banking-network, NOT exposed on host!
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://account-postgres:5432/accountdb
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-      - CUSTOMER_SERVICE_URL=http://gateway-service:8888
-    networks:
-      - banking-network
-    depends_on:
-      account-postgres:
-        condition: service_healthy
-      discovery-service:
-        condition: service_started
-      config-service:
-        condition: service_started
-
-  transaction-service:
-    build:
-      context: ./transaction-service
-      dockerfile: Dockerfile
-    container_name: transaction-service
-    restart: unless-stopped
-    expose:
-      - "8082" # Internal only to banking-network, NOT exposed on host!
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://transaction-postgres:5432/transactiondb
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-      - ACCOUNT_SERVICE_URL=http://gateway-service:8888
-    networks:
-      - banking-network
-    depends_on:
-      transaction-postgres:
-        condition: service_healthy
-      discovery-service:
-        condition: service_started
-      config-service:
-        condition: service_started
-
-  # ==============================================================================
-  # 4. API GATEWAY (THE ONLY PUBLIC ENTRYPOINT FOR ALL APIS)
-  # ==============================================================================
-  gateway-service:
-    build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
-    container_name: gateway-service
-    restart: unless-stopped
-    ports:
-      - "8888:8888" # The ONLY public entrypoint for all APIs and Swagger UI!
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-    networks:
-      - banking-network
-    depends_on:
-      - discovery-service
-      - config-service
-      - customer-service
-      - account-service
-      - transaction-service
-
 networks:
   banking-network:
     driver: bridge
@@ -215,3 +86,4 @@ volumes:
   customer_postgres_data:
   account_postgres_data:
   transaction_postgres_data:
+
