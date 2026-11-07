@@ -1,5 +1,6 @@
 package com.bank.chatbootservice.controllers;
 
+import com.bank.chatbootservice.agents.EbankAIAgent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
@@ -14,15 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "AI Chatbot", description = "Operations related to the AI Banking Chatbot")
 public class EbankChatBotController {
 
-    private final ChatClient chatClient;
-    private final ChatMemory chatMemory;
+    private final EbankAIAgent ebankAIAgent;
 
-    public EbankChatBotController(ChatClient.Builder chatClient, ChatMemory chatMemory) {
-        this.chatMemory = chatMemory;
-        this.chatClient = chatClient
-                .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build()
-                ).build();
+    public EbankChatBotController(EbankAIAgent ebankAIAgent) {
+        this.ebankAIAgent = ebankAIAgent;
     }
 
     @GetMapping(value = "/chat", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -30,11 +26,7 @@ public class EbankChatBotController {
     public String chat(
             @RequestParam(name = "query", defaultValue = "Hello") String query
     ) {
-        chatMemory.get("default").forEach(m -> m.getMetadata().remove("reasoning_content"));
-        return chatClient.prompt(query)
-                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "default"))
-                .call()
-                .content();
+        return ebankAIAgent.chat(query);
     }
 
 }
