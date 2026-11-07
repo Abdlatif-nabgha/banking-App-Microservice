@@ -3,6 +3,8 @@ package com.bank.chatbootservice.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,8 +16,11 @@ public class EbankChatBotController {
 
     private final ChatClient chatClient;
 
-    public EbankChatBotController(ChatClient chatClient) {
-        this.chatClient = chatClient;
+    public EbankChatBotController(ChatClient.Builder chatClient, ChatMemory chatMemory) {
+        this.chatClient = chatClient
+                .defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory).build()
+                ).build();
     }
 
     @GetMapping(value = "/chat", produces = MediaType.TEXT_PLAIN_VALUE)
