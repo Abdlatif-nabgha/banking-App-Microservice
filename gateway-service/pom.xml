@@ -57,6 +57,13 @@
             <version>3.1.1</version>
         </dependency>
 
+        <!-- Native macOS DNS Resolver for Apple Silicon (arm64) -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+            <classifier>osx-aarch_64</classifier>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

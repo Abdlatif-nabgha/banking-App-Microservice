@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class EbankChatBotController {
 
     private final ChatClient chatClient;
+    private final ChatMemory chatMemory;
 
     public EbankChatBotController(ChatClient.Builder chatClient, ChatMemory chatMemory) {
+        this.chatMemory = chatMemory;
         this.chatClient = chatClient
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build()
@@ -28,7 +30,11 @@ public class EbankChatBotController {
     public String chat(
             @RequestParam(name = "query", defaultValue = "Hello") String query
     ) {
-        return chatClient.prompt(query).call().content();
+        chatMemory.get("default").forEach(m -> m.getMetadata().remove("reasoning_content"));
+        return chatClient.prompt(query)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "default"))
+                .call()
+                .content();
     }
 
 }
