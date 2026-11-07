@@ -8,7 +8,7 @@ spring:
     import: "optional:configserver:"
   cloud:
     config:
-      enabled: false
+      enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/customerdb
     username: customer_user
@@ -29,4 +29,4 @@ spring:
     baseline-on-migrate: true # Useful for existing databases
 eureka:
   client:
-    enabled: false
+    enabled: true

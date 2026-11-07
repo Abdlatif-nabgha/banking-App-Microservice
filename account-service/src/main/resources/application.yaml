@@ -9,7 +9,7 @@ spring:
     import: "optional:configserver:"
   cloud:
     config:
-      enabled: false
+      enabled: true
     openfeign:
       client:
         config:
@@ -36,7 +36,7 @@ spring:
     baseline-on-migrate: true # Useful for existing databases
 eureka:
   client:
-    enabled: false
+    enabled: true
 management:
   endpoints:
     web:

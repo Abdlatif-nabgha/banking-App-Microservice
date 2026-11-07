@@ -78,12 +78,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
-
-        <!-- 2. Pour le Load Balancing côté Gateway (lb://) -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

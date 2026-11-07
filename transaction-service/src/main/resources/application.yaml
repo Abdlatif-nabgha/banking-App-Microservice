@@ -17,6 +17,9 @@ spring:
 
 server:
   port: 8082
+eureka:
+  client:
+    enabled: true
 
 account-service:
   url: http://localhost:8081
