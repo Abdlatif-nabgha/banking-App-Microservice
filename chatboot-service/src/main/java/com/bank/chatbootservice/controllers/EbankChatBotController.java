@@ -3,9 +3,6 @@ package com.bank.chatbootservice.controllers;
 import com.bank.chatbootservice.agents.EbankAIAgent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +21,7 @@ public class EbankChatBotController {
     @GetMapping(value = "/chat", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary = "Ask AI Chatbot", description = "Send a question or prompt to the AI Banking Assistant")
     public String chat(
-            @RequestParam(name = "query", defaultValue = "Hello") String query
-    ) {
+            @RequestParam(name = "query", defaultValue = "Hello") String query) {
         return ebankAIAgent.chat(query);
     }
 
