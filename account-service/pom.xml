@@ -91,6 +91,11 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+        </dependency>
+
         <!-- 10. Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

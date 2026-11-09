@@ -1,6 +1,5 @@
 package com.bank.chatbootservice.agents;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -19,11 +18,16 @@ public class EbankAIAgent {
 
     public EbankAIAgent(ChatClient.Builder chatClient, ChatMemory chatMemory, ToolCallbackProvider tools) {
         this.chatClient = chatClient
-                .defaultSystem("You are an AI Banking Assistant. Answer user questions using the provided tools when needed.")
+                .defaultSystem("""
+                        You are an AI Banking Assistant.
+                        You must ONLY answer questions related to customers, accounts, and transactions using the provided tools and context.
+                        For any question outside of this banking context (customers, accounts, transactions) or if the information is not provided by the context/tools, you must strictly reply: "I don't know".
+                        """)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         stripReasoningAdvisor()
-                ).defaultTools(tools)
+                )
+                .defaultTools(tools)
                 .build();
     }
 
@@ -37,7 +41,7 @@ public class EbankAIAgent {
     private CallAdvisor stripReasoningAdvisor() {
         return new CallAdvisor() {
             @Override
-            public @NonNull String getName() {
+            public String getName() {
                 return "StripReasoningMetadataAdvisor";
             }
 
@@ -47,14 +51,16 @@ public class EbankAIAgent {
             }
 
             @Override
-            public @NonNull ChatClientResponse adviseCall(@NonNull ChatClientRequest request, @NonNull CallAdvisorChain chain) {
+            public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
                 request.prompt().getInstructions().forEach(m -> {
+                    m.getMetadata().remove("reasoningContent");
                     m.getMetadata().remove("reasoning_content");
                     m.getMetadata().remove("reasoning");
                 });
                 ChatClientResponse response = chain.nextCall(request);
                 if (response.chatResponse() != null) {
                     response.chatResponse().getResults().forEach(r -> {
+                        r.getOutput().getMetadata().remove("reasoningContent");
                         r.getOutput().getMetadata().remove("reasoning_content");
                         r.getOutput().getMetadata().remove("reasoning");
                     });
