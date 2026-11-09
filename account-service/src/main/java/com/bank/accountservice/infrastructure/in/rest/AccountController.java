@@ -34,6 +34,17 @@ public class AccountController {
 
     private final AccountUseCase accountUseCase;
 
+    @GetMapping
+    @Operation(summary = "Get all accounts (paginated)", description = "Get a paginated list of existing bank accounts")
+    public List<AccountResponse> getAllAccounts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return accountUseCase.getAllAccounts(page, size)
+                .stream()
+                .map(AccountResponse::from)
+                .toList();
+    }
+
     @PostMapping
     @Operation(summary = "Open an account", description = "Create a new bank account for an existing customer")
     public ResponseEntity<AccountResponse> open(
@@ -50,7 +61,7 @@ public class AccountController {
         return AccountResponse.from(accountUseCase.getAccount(AccountId.of(id)));
     }
 
-    @GetMapping
+    @GetMapping(params = "customerId")
     @Operation(summary = "Get accounts by customer ID", description = "Retrieve all accounts belonging to a specific customer")
     public List<AccountResponse> getByCustomer(@RequestParam UUID customerId) {
         return accountUseCase.getAccountsByCustomerId(customerId).stream()

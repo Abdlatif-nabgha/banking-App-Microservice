@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AccountUseCase {
+    List<Account> getAllAccounts(int page, int size);
     Account openAccount(OpenAccountCommand command);
     Account getAccount(AccountId accountId);
     List<Account> getAccountsByCustomerId(UUID customerId);

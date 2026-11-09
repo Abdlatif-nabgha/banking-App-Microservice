@@ -26,6 +26,18 @@ public class AccountService implements AccountUseCase {
     private final AccountRepositoryPort accountRepositoryPort;
     private final CustomerVerificationPort customerVerificationPort;
 
+    @Override
+    public List<Account> getAllAccounts(int page, int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page must be >= 0 and size must be > 0");
+        }
+        List<Account> accounts = accountRepositoryPort.findAll(page, size);
+        if (accounts.isEmpty()) {
+            throw new AccountNotFoundException("No accounts found");
+        }
+        return accounts;
+    }
+
     @Transactional
     @Override
     public Account openAccount(OpenAccountCommand command) {

@@ -20,6 +20,18 @@ public class AccountMcpAdapter {
 
     private final AccountUseCase accountUseCase;
 
+    @McpTool(description = "Get a paginated list of all bank accounts")
+    public List<AccountResponse> getAllAccounts(
+            @McpToolParam(description = "Page number starting from 0 (default 0)") Integer page,
+            @McpToolParam(description = "Number of accounts per page (default 10)") Integer size
+    ) {
+        int pageNumber = (page != null && page >= 0) ? page : 0;
+        int pageSize = (size != null && size > 0) ? size : 10;
+        return accountUseCase.getAllAccounts(pageNumber, pageSize).stream()
+                .map(AccountResponse::from)
+                .toList();
+    }
+
     @McpTool(description = "Get bank account details and balance by account UUID")
     public AccountResponse getAccountById(
             @McpToolParam(description = "The unique account UUID") UUID accountId
