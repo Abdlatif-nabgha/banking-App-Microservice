@@ -1,5 +1,6 @@
 package com.bank.chatbootservice.agents;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -22,8 +23,7 @@ public class EbankAIAgent {
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         stripReasoningAdvisor()
-                )
-                .defaultToolCallbacks(tools)
+                ).defaultTools(tools)
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class EbankAIAgent {
     private CallAdvisor stripReasoningAdvisor() {
         return new CallAdvisor() {
             @Override
-            public String getName() {
+            public @NonNull String getName() {
                 return "StripReasoningMetadataAdvisor";
             }
 
@@ -47,7 +47,7 @@ public class EbankAIAgent {
             }
 
             @Override
-            public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+            public @NonNull ChatClientResponse adviseCall(@NonNull ChatClientRequest request, @NonNull CallAdvisorChain chain) {
                 request.prompt().getInstructions().forEach(m -> {
                     m.getMetadata().remove("reasoning_content");
                     m.getMetadata().remove("reasoning");
