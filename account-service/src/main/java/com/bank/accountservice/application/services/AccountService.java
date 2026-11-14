@@ -3,8 +3,10 @@ package com.bank.accountservice.application.services;
 
 import com.bank.accountservice.application.ports.inbound.AccountUseCase;
 import com.bank.accountservice.application.ports.inbound.OpenAccountCommand;
+import com.bank.accountservice.application.ports.outbound.AccountEventPublisherPort;
 import com.bank.accountservice.application.ports.outbound.AccountRepositoryPort;
 import com.bank.accountservice.application.ports.outbound.CustomerVerificationPort;
+import com.bank.accountservice.domain.event.AccountOpenedEvent;
 import com.bank.accountservice.domain.exception.AccountNotFoundException;
 import com.bank.accountservice.domain.exception.CustomerNotFoundException;
 import com.bank.accountservice.domain.model.Account;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,6 +32,7 @@ public class AccountService implements AccountUseCase {
 
     private final AccountRepositoryPort accountRepositoryPort;
     private final CustomerVerificationPort customerVerificationPort;
+    private final AccountEventPublisherPort eventPublisherPort;
 
     @Override
     @Cacheable(value = "allAccounts", key = "#page + '-' + #size")
@@ -51,13 +55,27 @@ public class AccountService implements AccountUseCase {
             @CacheEvict(value = "allAccounts", allEntries = true)
     })
     public Account openAccount(OpenAccountCommand command) {
-        if (!customerVerificationPort.customerExists(command.customerId())) {
-            throw new CustomerNotFoundException(command.customerId());
-        }
+        var customer = customerVerificationPort.findCustomer(command.customerId())
+                .orElseThrow(() -> new CustomerNotFoundException(command.customerId()));
 
-        Account account = Account.open(command.customerId(), generateAccountNumber(), command.accountType());
+        var account = Account.open(customer.id(), generateAccountNumber(), command.accountType());
 
-        return accountRepositoryPort.save(account);
+        var savedAccount = accountRepositoryPort.save(account);
+
+        eventPublisherPort.publishAccountOpened(
+                new AccountOpenedEvent(
+                        UUID.randomUUID(),
+                        savedAccount.getId().value(),
+                        customer.id(),
+                        customer.firstName(),
+                        customer.lastName(),
+                        customer.email(),
+                        savedAccount.getAccountNumber(),
+                        savedAccount.getAccountType(),
+                        Instant.now()
+                )
+        );
+        return savedAccount;
     }
 
     private String generateAccountNumber() {
